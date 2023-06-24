@@ -309,15 +309,18 @@ def _parse_class(cls, kwargs):
     """
     if isinstance(kwargs, cls):
         # This is when initializing directly from config
-        pass
-    elif isinstance(kwargs, dict):
+        return kwargs
+    if isinstance(kwargs, dict):
         # This is when initializing from a dictionary
         # TODO or not, is to assert that kwargs is composed of primitives?
-        kwargs = cls(**kwargs)
-    else:
-        # not sure what to do.....
-        raise RuntimeError(f"Incompatible kwargs {type(kwargs)}: {kwargs}\nand {cls}.")
-    return kwargs
+        return cls(**kwargs)
+    # not sure what to do.....
+    try:
+        return cls(kwargs)
+    except Exception as e:
+        raise RuntimeError(
+            f"Incompatible kwargs {type(kwargs)}: {kwargs}\nand {cls}."
+        ) from e
 
 
 def parse_value(val, annot: Annotation, name=None):
@@ -374,7 +377,7 @@ def parse_value(val, annot: Annotation, name=None):
                 raise ValueError(f"Invalid type {type(_v)} for {_k} and field {name}")
         return return_dictionary
     if annot.collection == List:
-        if not type(val)==list:
+        if not type(val) == list:
             raise ValueError(f"Invalid type {type(val)} for type List")
         return [annot.variable_type(_v) for _v in val]
     if annot.collection == Tuple:

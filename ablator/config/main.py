@@ -269,6 +269,11 @@ class ConfigBase:
         -------
         dict
             The dictionary representation of the configuration object.
+
+        Raises
+        ------
+        ValueError
+            If a value is not parsable given the Annotation.
         """
         return_dict = {}
 
@@ -301,6 +306,12 @@ class ConfigBase:
             elif annot.collection == Type:
                 if annot.optional and _val is None:
                     val = None
+                elif isinstance(_val, Path):
+                    val = _val.as_posix()
+                elif not hasattr(_val, "__dict__"):
+                    raise ValueError(
+                        f"{type(_val)} is not a supported type, as it does not implement `__dict__`."
+                    )
                 else:
                     val = _val.__dict__
             elif issubclass(type(_val), Enum):
