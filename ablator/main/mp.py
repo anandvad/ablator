@@ -152,6 +152,8 @@ def train_main_remote(
         exception_str = traceback.format_exc()
         if hasattr(model, "logger"):
             model.logger.error(exception_str)
+        else:
+            mp_logger.error(f"{run_config.uid}:\n{exception_str}")
         mp_logger.error(f"Error Occured {run_config.uid}")
         if not fault_tollerant or isinstance(e, tuple(crash_exceptions_types)):
             error_msg = (
