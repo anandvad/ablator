@@ -190,7 +190,7 @@ class ConfigBase:
             annotation_types.update(dataclass_types)
 
             annotations = {
-                field_name: parse_type_hint(annotation)
+                field_name: parse_type_hint(type(self), annotation)
                 for field_name, annotation in annotation_types.items()
             }
         return annotations
@@ -276,7 +276,11 @@ class ConfigBase:
             if issubclass(type(val), Type):
                 return val.__dict__
             if issubclass(type(val), ConfigBase):
-                return val.make_dict(val.annotations)
+                # TODO test-case for
+                # val.make_dict(val.annotations) vs below
+                return val.make_dict(
+                    val.annotations, ignore_stateless=ignore_stateless, flatten=flatten
+                )
 
             return val
 
